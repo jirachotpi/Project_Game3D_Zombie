@@ -2,7 +2,7 @@ extends Node3D
 
 @onready var hit_rect = $UI/HitRect
 @onready var spawns = $Map/Spawns
-@onready var navigation_region = $Map/NavigationRegion3D
+@onready var navigation_region = $NavigationRegion3D  # เปลี่ยนจาก $Map/NavigationRegion3D
 
 var zombie = load("res://Scenes/zombie.tscn")
 var instance
@@ -31,5 +31,9 @@ func _get_random_child(parent_node):
 func _on_zombie_spawn_timer_timeout() -> void:
 	var spawn_point = _get_random_child(spawns).global_position
 	instance = zombie.instantiate()
-	instance.position = spawn_point
-	navigation_region.add_child(instance)
+	if instance != null:  # ตรวจสอบว่าอินสแตนซ์สำเร็จ
+		instance.position = spawn_point
+		add_child(instance)  # เปลี่ยนจาก navigation_region.add_child ไปใช้ add_child
+		print("Zombie spawned at: ", spawn_point)  # เพิ่มการดีบั๊ก
+	else:
+		print("Error: Failed to instantiate zombie from ", zombie)
