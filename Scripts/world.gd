@@ -2,7 +2,7 @@ extends Node3D
 
 @onready var hit_rect = $UI/HitRect
 @onready var spawns = $Map/Spawns
-@onready var navigation_region = $NavigationRegion3D  # เปลี่ยนจาก $Map/NavigationRegion3D
+@onready var navigation_region = $Map/NavigationRegion3D  # เปลี่ยนจาก $Map/NavigationRegion3D
 
 var zombie = load("res://Scenes/zombie.tscn")
 var instance
