@@ -24,17 +24,10 @@ func _process(delta):
 	match state_machine.get_current_node():
 		"Run":
 			nav_agent.set_target_position(player.global_transform.origin)
+			var next_nav_point = nav_agent.get_next_path_position()
+			velocity = (next_nav_point - global_transform.origin).normalized() * SPEED
+			rotation.y = lerp_angle(rotation.y, atan2(-velocity.x, -velocity.z), delta * 10.0)
 			
-			# --- DEBUG CODE START ---
-			if nav_agent.is_target_reachable():
-				var next_nav_point = nav_agent.get_next_path_position()
-				velocity = (next_nav_point - global_transform.origin).normalized() * SPEED
-				print("Path found! Moving towards: ", next_nav_point)
-			else:
-				print("TARGET UNREACHABLE!")
-			# --- DEBUG CODE END ---
-
-			look_at(Vector3(player.global_position.x, global_position.y, player.global_position.z), Vector3.UP)
 		"Attack":
 			look_at(Vector3(player.global_position.x, global_position.y, player.global_position.z), Vector3.UP)
 
