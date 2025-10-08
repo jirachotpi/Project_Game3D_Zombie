@@ -11,6 +11,13 @@ var health = 6
 @export var attack_cooldown := 0.8
 var _next_attack_time := 0.0
 
+@onready var audio: AudioStreamPlayer3D = $Audio
+@export var voice_clips: Array[AudioStream] = []
+@export var voice_interval_min := 5.0
+@export var voice_interval_max := 15.0
+
+var _next_voice_time := 0.0
+
 @onready var nav_agent = $NavigationAgent3D
 @onready var anim_tree = $AnimationTree
 
@@ -19,6 +26,7 @@ func _ready():
 	if player == null:
 		push_error("Zombie.gd: Player node not found. Check the path World/Map/Player.")
 	state_machine = anim_tree.get("parameters/playback")
+
 
 func _process(delta):
 	if player == null:
@@ -38,6 +46,12 @@ func _process(delta):
 
 	anim_tree.set("parameters/conditions/Attack", _target_in_range())
 	anim_tree.set("parameters/conditions/Run", !_target_in_range())
+
+	# ตรวจเวลาเล่นเสียงใหม่
+	if Time.get_ticks_msec() / 1000.0 >= _next_voice_time:
+		if player and global_position.distance_to(player.global_position) < 15:
+			_play_random_voice()
+		_schedule_next_voice()
 
 	move_and_slide()
 
@@ -62,3 +76,14 @@ func _on_area_3d_body_part_hit(dam: Variant) -> void:
 		if world and world.has_node("Audio/SFX_Zombie"):
 			world.get_node("Audio/SFX_Zombie").play()
 		queue_free()
+		
+func _play_random_voice() -> void:
+	if voice_clips.is_empty():
+		return
+	var idx := randi() % voice_clips.size()
+	audio.stream = voice_clips[idx]
+	audio.pitch_scale = randf_range(0.9, 1.1)
+	audio.play()
+
+func _schedule_next_voice() -> void:
+	_next_voice_time = (Time.get_ticks_msec() / 1000.0) + randf_range(voice_interval_min, voice_interval_max)
