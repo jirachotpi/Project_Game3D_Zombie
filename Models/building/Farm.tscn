@@ -260,6 +260,8 @@ data = PackedVector3Array(-0.005, 0.0027, 0.011, -0.0049, 0.0028, 0.011, -0.005,
 [node name="Root Scene" type="Node3D"]
 
 [node name="RootNode" type="StaticBody3D" parent="."]
+collision_layer = 3
+collision_mask = 3
 
 [node name="Farm_SecondAge_Level2" type="MeshInstance3D" parent="RootNode"]
 transform = Transform3D(100, 0, 0, 0, -1.19209e-05, 100, 0, -100, -1.19209e-05, 0, 0, 0)

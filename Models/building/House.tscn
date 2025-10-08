@@ -185,6 +185,8 @@ points = PackedVector3Array(-0.000614342, 0.00543238, 0.00766077, -0.000614342, 
 [node name="Root Scene" type="Node3D"]
 
 [node name="RootNode" type="StaticBody3D" parent="."]
+collision_layer = 3
+collision_mask = 3
 
 [node name="Houses_SecondAge_1_Level1" type="MeshInstance3D" parent="RootNode"]
 transform = Transform3D(600, 0, 0, 0, -2.62268e-05, 600, 0, -600, -2.62268e-05, 0, 0, 0)

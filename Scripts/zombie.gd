@@ -5,6 +5,7 @@ const ATTACK_RANGE = 2.5
 
 var player: Node3D
 var state_machine
+var health = 6
 
 @onready var nav_agent = $NavigationAgent3D
 @onready var anim_tree = $AnimationTree
@@ -43,3 +44,9 @@ func _hit_finished():
 	if player and global_position.distance_to(player.global_position) < ATTACK_RANGE + 1.0:
 		var dir = global_position.direction_to(player.global_position)
 		player.hit(dir)
+
+
+func _on_collision_shape_3d_body_part_hit(dam: Variant) -> void:
+	health -= dam
+	if health < 0:
+		queue_free()
