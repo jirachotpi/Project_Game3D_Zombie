@@ -7,6 +7,10 @@ var player: Node3D
 var state_machine
 var health = 6
 
+@export var attack_damage := 15
+@export var attack_cooldown := 0.8
+var _next_attack_time := 0.0
+
 @onready var nav_agent = $NavigationAgent3D
 @onready var anim_tree = $AnimationTree
 
@@ -40,14 +44,16 @@ func _process(delta):
 func _target_in_range() -> bool:
 	return global_position.distance_to(player.global_position) < ATTACK_RANGE if player else false
 
+
+
 func _hit_finished():
 	if player and global_position.distance_to(player.global_position) < ATTACK_RANGE + 1.0:
+		var now := Time.get_ticks_msec() / 1000.0
+		if now < _next_attack_time: return
+		_next_attack_time = now + attack_cooldown
+
 		var dir = global_position.direction_to(player.global_position)
-		player.hit(dir)
-
-
-
-
+		player.hit(dir, attack_damage)
 
 func _on_area_3d_body_part_hit(dam: Variant) -> void:
 	health -= dam
