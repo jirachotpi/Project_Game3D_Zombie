@@ -20,7 +20,10 @@ func _get_random_child(parent_node):
 	return parent_node.get_child(random_id)
 
 func _on_zombie_spawn_timer_timeout() -> void:
-	var spawn_point = _get_random_child(spawns).global_position
+	var spawn_node = _get_random_child(spawns)
+	if not spawn_node.is_inside_tree():
+		await spawn_node.ready  # รอให้ node เข้า tree ก่อน
+	var spawn_point = spawn_node.global_position
 	var instance = zombie.instantiate()
 	instance.global_position = spawn_point
 	enemies_parent.add_child(instance)
