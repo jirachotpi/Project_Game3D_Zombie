@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cehpiqm5l2ifo"
+path="res://.godot/imported/V 2022  Remix By KCRC Studio.mp3-91d2dcc60e613de94a4d8bec9a8069a4.mp3str"
+
+[deps]
+
+source_file="res://Sounds/V 2022  Remix By KCRC Studio.mp3"
+dest_files=["res://.godot/imported/V 2022  Remix By KCRC Studio.mp3-91d2dcc60e613de94a4d8bec9a8069a4.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=7.52
+bpm=0.0
+beat_count=0
+bar_beats=4

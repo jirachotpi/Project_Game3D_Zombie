@@ -88,6 +88,9 @@ func _physics_process(delta):
 			instance.position = gun_barrel.global_position
 			instance.transform.basis = gun_barrel.global_transform.basis
 			get_parent().add_child(instance)
+			var world = get_tree().get_root().get_node("World")
+			if world and world.has_node("Audio/SFX_Shoot"):
+				world.get_node("Audio/SFX_Shoot").play()
 
 	move_and_slide()
 

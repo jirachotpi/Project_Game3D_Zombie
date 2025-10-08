@@ -58,4 +58,7 @@ func _hit_finished():
 func _on_area_3d_body_part_hit(dam: Variant) -> void:
 	health -= dam
 	if health < 0:
+		var world = get_tree().get_root().get_node("World")
+		if world and world.has_node("Audio/SFX_Zombie"):
+			world.get_node("Audio/SFX_Zombie").play()
 		queue_free()

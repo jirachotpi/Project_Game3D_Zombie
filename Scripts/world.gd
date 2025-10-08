@@ -26,9 +26,13 @@ var _elapsed_sec := 0.0
 
 # -- spawn scaling
 @export var base_spawn_wait := 5.0   # 5s (ค่าปัจจุบันของคุณ)
-@export var min_spawn_wait := 0.7    # ต่ำสุด
+@export var min_spawn_wait := 0.0    # ต่ำสุด
 @export var spawn_decay_rate := 0.02 # วินาที/วินาที: ลด 0.02s ต่อ 1s
 # สูตร: wait_time = max(min_spawn_wait, base_spawn_wait - elapsed * spawn_decay_rate)
+@onready var bgm := $Audio/BGM
+@onready var sfx_shoot := $Audio/SFX_Shoot
+@onready var sfx_zombie := $Audio/SFX_Zombie
+
 
 func _ready():
 	randomize()
