@@ -46,7 +46,10 @@ func _hit_finished():
 		player.hit(dir)
 
 
-func _on_collision_shape_3d_body_part_hit(dam: Variant) -> void:
+
+
+
+func _on_area_3d_body_part_hit(dam: Variant) -> void:
 	health -= dam
 	if health < 0:
 		queue_free()
