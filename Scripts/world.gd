@@ -10,6 +10,7 @@ extends Node3D
 # HUD
 @onready var hud_time := $UI/HUD/TimeLabel
 @onready var hud_hp := $UI/HUD/HealthBar
+@onready var crosshair := $UI/Crosshair
 
 # Menus
 @onready var menu_start := $UI/StartMenu
@@ -47,6 +48,8 @@ func _ready():
 	
 	# เริ่มที่หน้า Start
 	_show_start_menu()
+	crosshair.position.x = get_viewport().size.x / 2.0 - 36
+	crosshair.position.y = get_viewport().size.y / 2.0 - 36
 
 
 func _process(delta: float) -> void:
