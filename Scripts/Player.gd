@@ -32,6 +32,16 @@ var gravity = 9.8
 var bullet = load("res://Scenes/Bullet.tscn")
 var instance
 
+@export var footstep_walk_interval := 0.50
+@export var footstep_sprint_interval := 0.33
+var _step_timer := 0.0
+var _moving_threshold := 0.2
+var _is_sprinting := false
+
+@onready var sfx_step: AudioStreamPlayer3D = $Audio/Footstep
+@onready var sfx_hit:  AudioStreamPlayer    = $Audio/PlayerHit
+@onready var sfx_die:  AudioStreamPlayer    = $Audio/PlayerDie
+
 @onready var head = $Head
 @onready var camera = $Head/Camera3D
 @onready var gun_anim = $Head/Camera3D/Rifle/AnimationPlayer
@@ -56,10 +66,13 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
 
+		# Handle Sprint.
 	if Input.is_action_pressed("sprint"):
 		speed = SPRINT_SPEED
+		_is_sprinting = true
 	else:
 		speed = WALK_SPEED
+		_is_sprinting = false
 
 	var input_dir = Input.get_vector("left", "right", "up", "down")
 	var direction = (head.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
@@ -76,6 +89,7 @@ func _physics_process(delta):
 
 	t_bob += delta * velocity.length() * float(is_on_floor())
 	camera.transform.origin = _headbob(t_bob)
+	_play_footstep_sfx(delta)
 
 	var velocity_clamped = clamp(velocity.length(), 0.5, SPRINT_SPEED * 2)
 	var target_fov = BASE_FOV + FOV_CHANGE * velocity_clamped
@@ -109,6 +123,7 @@ func hit(dir: Vector3, damage: int = 10) -> void:
 
 	emit_signal("player_hit")
 	velocity += dir * HIT_STAGGER
+	if sfx_hit: sfx_hit.play()
 	_apply_damage(damage)
 
 func _apply_damage(dmg: int) -> void:
@@ -117,7 +132,37 @@ func _apply_damage(dmg: int) -> void:
 		_die()
 
 func _die() -> void:
+	if sfx_die:
+		# ให้เสียงดังแน่ ๆ แม้จะ pause หลังจากนี้
+		sfx_die.process_mode = Node.PROCESS_MODE_ALWAYS
+		sfx_die.play()
 	emit_signal("player_died")
 	set_process(false)
 	set_physics_process(false)
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
+func _play_footstep_sfx(delta: float) -> void:
+	if not sfx_step:
+		return
+
+	# หยุดเสียงเท้าเมื่อไม่ได้อยู่บนพื้น
+	if not is_on_floor():
+		_step_timer = 0.0
+		return
+
+	# ความเร็วระนาบ (ไม่เอาแกน Y)
+	var horizontal_speed := Vector2(velocity.x, velocity.z).length()
+	if horizontal_speed < _moving_threshold:
+		_step_timer = 0.0
+		return
+
+	_step_timer += delta
+	var interval: float = footstep_walk_interval if _is_sprinting else footstep_sprint_interval
+
+	# เมื่อครบเวลาหนึ่งก้าว → เล่นเสียงเท้า 1 ครั้ง
+	if _step_timer >= interval:
+		_step_timer = 0.0
+		# เล่นเฉพาะตอนที่ไม่ได้กำลังเล่นอยู่ (ป้องกัน overlap)
+		if not sfx_step.playing:
+			sfx_step.pitch_scale = randf_range(0.95, 1.05)
+			sfx_step.play()

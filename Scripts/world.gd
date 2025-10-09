@@ -10,7 +10,7 @@ extends Node3D
 # HUD
 @onready var hud_time := $UI/HUD/TimeLabel
 @onready var hud_hp := $UI/HUD/HealthBar
-@onready var crosshair := $UI/Crosshair
+@onready var crosshair := $UI/HUD/Crosshair
 
 # Menus
 @onready var menu_start := $UI/StartMenu
@@ -34,7 +34,6 @@ var _elapsed_sec := 0.0
 @onready var sfx_shoot := $Audio/SFX_Shoot
 @onready var sfx_zombie := $Audio/SFX_Zombie
 
-
 func _ready():
 	randomize()
 	# signals
@@ -48,8 +47,6 @@ func _ready():
 	
 	# เริ่มที่หน้า Start
 	_show_start_menu()
-	crosshair.position.x = get_viewport().size.x / 2.0 - 36
-	crosshair.position.y = get_viewport().size.y / 2.0 - 36
 
 
 func _process(delta: float) -> void:
@@ -85,18 +82,25 @@ func _on_player_died():
 	menu_over.visible = true
 	var t := int(_elapsed_sec)
 	over_time_label.text = "You survived %02d:%02d" % [t/60, t%60]
+	if crosshair: crosshair.visible = false
 
 func _get_random_child(parent_node):
 	var random_id = randi() % parent_node.get_child_count()
 	return parent_node.get_child(random_id)
 
 func _on_zombie_spawn_timer_timeout() -> void:
-	if not _running: return
+	if not _running:
+		return
 	var spawn_node = _get_random_child(spawns)
 	if not is_instance_valid(spawn_node):
 		return
-	var local_pos = spawn_node.position
-	var spawn_point = spawns.to_global(local_pos)
+
+	var spawn_point: Vector3
+	if spawns.is_inside_tree():
+		spawn_point = spawns.to_global(spawn_node.position)
+	else:
+		spawn_point = spawn_node.global_position  # fallback ถ้า spawns ยังไม่ ready
+
 	var instance = zombie.instantiate()
 	instance.global_position = spawn_point
 	enemies_parent.add_child(instance)
@@ -109,6 +113,7 @@ func _show_start_menu() -> void:
 	menu_over.visible = false
 	_running = false
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	if crosshair: crosshair.visible = false
 
 func _start_game() -> void:
 	get_tree().paused = false
@@ -123,6 +128,7 @@ func _start_game() -> void:
 	player.set_process(true)
 	player.set_physics_process(true)
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	if crosshair: crosshair.visible = true
 
 func _restart_game() -> void:
 	get_tree().reload_current_scene()
